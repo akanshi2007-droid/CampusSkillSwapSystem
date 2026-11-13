@@ -35,7 +35,16 @@ public class SwapRequestDAO implements CrudDAO<SwapRequest> {
         request.setOwnerId(rs.getInt("owner_id"));
         request.setOwnerName(rs.getString("owner_name"));
         request.setSkillName(rs.getString("skill_name"));
-        request.setStatus(rs.getString("status"));
+
+        // Normalize status so Java comparisons work correctly.
+        String status = rs.getString("status");
+
+        request.setStatus(
+            status == null
+                ? SwapRequest.PENDING
+                : status.trim().toUpperCase()
+        );
+
         request.setRequestDate(rs.getTimestamp("request_date"));
 
         // The current swap_requests table has no message column.
@@ -85,6 +94,7 @@ public class SwapRequestDAO implements CrudDAO<SwapRequest> {
         );
     }
 
+    /** Counts pending requests received by a student. */
     public int countPendingReceived(int ownerId) throws SQLException {
 
         String sql =
@@ -102,6 +112,7 @@ public class SwapRequestDAO implements CrudDAO<SwapRequest> {
         }
     }
 
+    /** Checks whether a pending request already exists for an offer. */
     public boolean alreadyRequested(int requesterId, int offerId)
             throws SQLException {
 
@@ -124,6 +135,7 @@ public class SwapRequestDAO implements CrudDAO<SwapRequest> {
         }
     }
 
+    /** Updates a request to ACCEPTED or REJECTED. */
     public boolean updateStatus(int requestId, String status)
             throws SQLException {
 
@@ -133,7 +145,7 @@ public class SwapRequestDAO implements CrudDAO<SwapRequest> {
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setString(1, status);
+            ps.setString(1, status.trim().toUpperCase());
             ps.setInt(2, requestId);
 
             return ps.executeUpdate() > 0;
@@ -235,18 +247,23 @@ public class SwapRequestDAO implements CrudDAO<SwapRequest> {
 
     @Override
     public boolean update(SwapRequest request) throws SQLException {
-        return updateStatus(request.getRequestId(), request.getStatus());
+        return updateStatus(
+            request.getRequestId(),
+            request.getStatus()
+        );
     }
 
     @Override
     public boolean delete(int id) throws SQLException {
 
-        String sql = "DELETE FROM swap_requests WHERE request_id = ?";
+        String sql =
+            "DELETE FROM swap_requests WHERE request_id = ?";
 
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
+
             return ps.executeUpdate() > 0;
         }
     }
