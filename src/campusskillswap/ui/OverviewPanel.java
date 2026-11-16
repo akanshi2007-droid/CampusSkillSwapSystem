@@ -1,16 +1,13 @@
+
 package campusskillswap.ui;
 
-import campusskillswap.dao.OfferDAO;
-import campusskillswap.dao.PreferenceDAO;
-import campusskillswap.interfaces.Refreshable;
-import campusskillswap.model.Student;
-import campusskillswap.util.ProfileCalculator;
-import campusskillswap.util.Session;
-import campusskillswap.util.UIHelper;
+import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.sql.SQLException;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -20,48 +17,147 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-/** "Overview" tab: 4 big buttons + profile completion progress bar. */
+import campusskillswap.dao.OfferDAO;
+import campusskillswap.dao.PreferenceDAO;
+import campusskillswap.interfaces.Refreshable;
+import campusskillswap.model.Student;
+import campusskillswap.util.ProfileCalculator;
+import campusskillswap.util.Session;
+
 public class OverviewPanel extends JPanel implements Refreshable {
+
     private final DashboardFrame dashboard;
+
     private final JLabel idLabel = new JLabel();
     private final JLabel pendingLabel = new JLabel(" ");
-    private final JProgressBar progressBar = new JProgressBar(0, 100);
+
+    private final JProgressBar progressBar =
+            new JProgressBar(0, 100);
+
     private final OfferDAO offerDAO = new OfferDAO();
     private final PreferenceDAO preferenceDAO = new PreferenceDAO();
 
+    // Midnight Blue & Gold Theme
+    private static final Color BG = new Color(16, 24, 39);
+    private static final Color PANEL = new Color(23, 38, 61);
+    private static final Color NAVY = new Color(36, 69, 104);
+    private static final Color GOLD = new Color(214, 173, 96);
+    private static final Color CREAM = new Color(244, 235, 216);
+    private static final Color MUTED = new Color(184, 196, 214);
+    private static final Color BORDER = new Color(52, 68, 91);
+
     public OverviewPanel(DashboardFrame dashboard) {
+
         this.dashboard = dashboard;
+
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBackground(java.awt.Color.WHITE);
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        setBackground(BG);
 
-        JLabel title = UIHelper.label("Your Campus Skill Swap", 28, true, UIHelper.TEXT);
-        idLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
-        JLabel question = UIHelper.label("What would you like to do today?", 18, false, UIHelper.TEXT);
-        pendingLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
-        pendingLabel.setForeground(java.awt.Color.RED);
+        setBorder(
+                BorderFactory.createEmptyBorder(
+                        25, 25, 25, 25
+                )
+        );
 
-        JButton offerBtn = bigButton("Offer a Skill");
-        JButton findBtn = bigButton("Find a Skill");
-        JButton swapBtn = bigButton("Swap Requests");
-        JButton profileBtn = bigButton("My Profile");
-        offerBtn.addActionListener(e -> dashboard.openOfferDialog());
-        findBtn.addActionListener(e -> dashboard.openTab(DashboardFrame.TAB_EXPLORE));
-        swapBtn.addActionListener(e -> dashboard.openSwapRequests());
-        profileBtn.addActionListener(e -> dashboard.openProfile());
+        // ----- Heading -----
 
-        JPanel grid = new JPanel(new GridLayout(2, 2, 15, 15));
+        JLabel title = new JLabel("Your Campus Skill Swap");
+
+        title.setFont(
+                new Font("SansSerif", Font.BOLD, 28)
+        );
+        title.setForeground(CREAM);
+
+        idLabel.setFont(
+                new Font("SansSerif", Font.BOLD, 14)
+        );
+        idLabel.setForeground(GOLD);
+
+        JLabel question = new JLabel(
+                "What would you like to do today?"
+        );
+
+        question.setFont(
+                new Font("SansSerif", Font.PLAIN, 18)
+        );
+        question.setForeground(MUTED);
+
+        // ----- Dashboard Buttons -----
+
+        JButton offerBtn = bigButton("Offer a Skill", GOLD);
+        JButton findBtn = bigButton("Find a Skill", NAVY);
+        JButton swapBtn = bigButton("Swap Requests", NAVY);
+        JButton profileBtn = bigButton("My Profile", GOLD);
+
+        offerBtn.addActionListener(
+                e -> dashboard.openOfferDialog()
+        );
+
+        findBtn.addActionListener(
+                e -> dashboard.openTab(DashboardFrame.TAB_EXPLORE)
+        );
+
+        swapBtn.addActionListener(
+                e -> dashboard.openSwapRequests()
+        );
+
+        profileBtn.addActionListener(
+                e -> dashboard.openProfile()
+        );
+
+        // ----- Button Grid -----
+
+        JPanel grid = new JPanel(
+                new GridLayout(2, 2, 18, 18)
+        );
+
         grid.setOpaque(false);
+
         grid.add(offerBtn);
         grid.add(findBtn);
         grid.add(swapBtn);
         grid.add(profileBtn);
-        grid.setMaximumSize(new Dimension(700, 160));
-        grid.setPreferredSize(new Dimension(700, 160));
+
+        grid.setMaximumSize(
+                new Dimension(720, 180)
+        );
+
+        grid.setPreferredSize(
+                new Dimension(720, 180)
+        );
+
+        // ----- Pending Requests -----
+
+        pendingLabel.setFont(
+                new Font("SansSerif", Font.BOLD, 14)
+        );
+
+        pendingLabel.setForeground(GOLD);
+
+        // ----- Progress Bar -----
 
         progressBar.setStringPainted(true);
-        progressBar.setPreferredSize(new Dimension(500, 26));
-        progressBar.setMaximumSize(new Dimension(500, 26));
+
+        progressBar.setFont(
+                new Font("SansSerif", Font.BOLD, 12)
+        );
+
+        progressBar.setForeground(GOLD);
+        progressBar.setBackground(PANEL);
+
+        progressBar.setBorder(
+                BorderFactory.createLineBorder(BORDER)
+        );
+
+        progressBar.setPreferredSize(
+                new Dimension(520, 30)
+        );
+
+        progressBar.setMaximumSize(
+                new Dimension(520, 30)
+        );
+
+        // ----- Center Alignment -----
 
         center(title);
         center(idLabel);
@@ -70,53 +166,133 @@ public class OverviewPanel extends JPanel implements Refreshable {
         center(pendingLabel);
         center(progressBar);
 
+        // ----- Add Components -----
+
         add(Box.createVerticalGlue());
+
         add(title);
         add(Box.createVerticalStrut(12));
+
         add(idLabel);
-        add(Box.createVerticalStrut(18));
+        add(Box.createVerticalStrut(22));
+
         add(question);
-        add(Box.createVerticalStrut(25));
+        add(Box.createVerticalStrut(30));
+
         add(grid);
-        add(Box.createVerticalStrut(15));
+        add(Box.createVerticalStrut(25));
+
         add(pendingLabel);
-        add(Box.createVerticalStrut(10));
+        add(Box.createVerticalStrut(15));
+
         add(progressBar);
+
         add(Box.createVerticalGlue());
 
         refreshData();
     }
 
-    private JButton bigButton(String text) {
-        JButton b = new JButton(text);
-        b.setFont(new Font("SansSerif", Font.BOLD, 17));
-        return b;
+    // ----- Button Styling -----
+
+    private JButton bigButton(String text, Color background) {
+
+        JButton button = new JButton(text);
+
+        button.setFont(
+                new Font("SansSerif", Font.BOLD, 17)
+        );
+
+        button.setBackground(background);
+
+        button.setForeground(
+                background.equals(GOLD) ? BG : CREAM
+        );
+
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setOpaque(true);
+
+        button.setCursor(
+                new Cursor(Cursor.HAND_CURSOR)
+        );
+
+        button.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                background.equals(GOLD)
+                                        ? GOLD.darker()
+                                        : BORDER
+                        ),
+                        BorderFactory.createEmptyBorder(
+                                18, 20, 18, 20
+                        )
+                )
+        );
+
+        return button;
     }
 
-    private void center(JComponent c) {
-        c.setAlignmentX(CENTER_ALIGNMENT);
+    // ----- Center Alignment -----
+
+    private void center(JComponent component) {
+        component.setAlignmentX(CENTER_ALIGNMENT);
     }
+
+    // ----- Pending Request Count -----
 
     public void setPendingCount(int count) {
-        pendingLabel.setText(count > 0 ? "You have " + count + " pending swap request(s)!" : " ");
+
+        if (count > 0) {
+
+            pendingLabel.setText(
+                    "You have " + count +
+                    " pending swap request(s)!"
+            );
+
+            pendingLabel.setForeground(GOLD);
+
+        } else {
+
+            pendingLabel.setText(" ");
+        }
     }
+
+    // ----- Refresh Dashboard Data -----
 
     @Override
     public void refreshData() {
+
         Student s = Session.getInstance().getCurrentStudent();
+
         if (s == null) {
             return;
         }
-        idLabel.setText("Student ID: " + s.getId());
+
+        idLabel.setText(
+                "Student ID: " + s.getId()
+        );
+
         int percent;
+
         try {
-            percent = ProfileCalculator.calculate(s,
+
+            percent = ProfileCalculator.calculate(
+                    s,
                     offerDAO.countByStudent(s.getId()),
-                    preferenceDAO.exists(s.getId()));
+                    preferenceDAO.exists(s.getId())
+            );
+
         } catch (SQLException ex) {
-            percent = ProfileCalculator.calculate(s, 0, false);
+
+            percent = ProfileCalculator.calculate(
+                    s, 0, false
+            );
         }
+
         progressBar.setValue(percent);
-        progressBar.setString("Profile Completion: " + percent + "%");
+
+        progressBar.setString(
+                "Profile Completion: " + percent + "%"
+        );
     }
 }
